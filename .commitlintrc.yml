@@ -1,0 +1,47 @@
+# commitlint-rs (https://github.com/KeisukeYamashita/commitlint-rs), installed
+# by mise. scripts/commit-msg.sh hands it the message when this file exists and
+# the `commitlint` on PATH is commitlint-rs.
+#
+# These are @commitlint/config-conventional's rules, as used by the Node
+# templates, in commitlint-rs terms. commitlint-rs calls the whole first line
+# the subject and the part after the colon the description, so Node's
+# subject-* rules become description-* here.
+#
+# config-conventional rules with no commitlint-rs counterpart, which
+# scripts/commit-msg.sh checks on this path instead:
+#   header-max-length 100, header-trim,
+#   body-max-line-length 100, footer-max-line-length 100,
+#   body-leading-blank (a warning, as in Node).
+# Only footer-leading-blank is left unchecked. commitlint-rs's own
+# body-max-length limits the whole body, not each line, so it is not used.
+#
+# Any rule left out of this file is off, including the defaults commitlint-rs
+# applies when it finds no config.
+rules:
+  # type-enum. Being all lower case, the list covers type-case too.
+  type:
+    level: error
+    options:
+      - build
+      - chore
+      - ci
+      - docs
+      - feat
+      - fix
+      - perf
+      - refactor
+      - revert
+      - style
+      - test
+  type-empty:
+    level: error
+  # subject-empty
+  description-empty:
+    level: error
+  # subject-case (never sentence-, start-, pascal- or upper-case: all of them
+  # start with a capital) and subject-full-stop (no trailing ".", but "..." is
+  # fine). The regex crate has no lookaround, so a one-character description
+  # takes the first branch.
+  description-format:
+    level: error
+    format: ^([^\p{Lu}\p{Lt}.]|[^\p{Lu}\p{Lt}].*([^.]|\.\.\.))$

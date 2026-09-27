@@ -26,9 +26,9 @@ Publishing is manual; every crate starts with `publish = false`.
    `gh repo create <name> --template Smiduweorc/rustCrateTemplate --clone`.
 2. Install [mise](https://mise.jdx.dev) and
    [rustup](https://rustup.rs), then run `just setup`. That installs just,
-   lefthook and git-cliff from `mise.toml`, the Rust toolchain from
-   `rust-toolchain.toml`, the crates, and the git hooks. Before just exists,
-   run `scripts/tasks.sh setup` instead.
+   lefthook, git-cliff and commitlint-rs from `mise.toml`, the Rust toolchain
+   from `rust-toolchain.toml`, the crates, and the git hooks. Before just
+   exists, run `scripts/tasks.sh setup` instead.
 3. Rename `app`. Rename the directories `crates/app` and `crates/app-cli`,
    then run `rg -w app crates` for the rest: the `name` fields and the
    `[[bin]]` name in the two `Cargo.toml` files, the `app = { path = "../app" }`
@@ -81,7 +81,19 @@ Commit messages follow [Conventional Commits][cc]. `scripts/commit-msg.sh`
 checks them in the commit-msg hook, and git-cliff builds `CHANGELOG.md` from
 them. Dependabot's bumps are `chore(deps): ...`, which the changelog skips.
 
+The rules are `@commitlint/config-conventional`'s, the same ones the Node
+templates enforce with [commitlint][cl]. Here [commitlint-rs][clrs] applies
+them from `.commitlintrc.yml`, and `scripts/commit-msg.sh` adds the ones
+commitlint-rs has no rule for: the 100-character limits on the header and on
+body and footer lines, no whitespace around the header, and a warning when
+the body does not follow a blank line. Only `footer-leading-blank` goes
+unchecked. If commitlint-rs is not on `PATH` (mise is not activated in the
+shell that runs git), the script falls back to its own regex, which checks
+only the header's shape and length.
+
 [cc]: https://www.conventionalcommits.org
+[cl]: https://commitlint.js.org
+[clrs]: https://github.com/KeisukeYamashita/commitlint-rs
 
 ## Files shared with black-garden-ants
 
@@ -104,7 +116,8 @@ can keep the check or delete `scripts/check-shared.sh` and
 | `Cargo.toml` | Workspace members, the shared version, and the lint levels |
 | `rust-toolchain.toml` | The pinned Rust release, with rustfmt and clippy |
 | `rustfmt.toml` | Tabs, and the edition rustfmt uses when the hook calls it directly |
-| `mise.toml` | just, lefthook and git-cliff |
+| `mise.toml` | just, lefthook, git-cliff and commitlint-rs |
+| `.commitlintrc.yml` | The commit message rules commitlint-rs applies |
 | `scripts/tasks.sh` | What every task means. Edit the Rust part to change behaviour. |
 | `scripts/check-shared.sh` | The black-garden-ants comparison |
 | `release.sh`, `cliff.toml`, `lefthook.yml`, `scripts/commit-msg.sh` | Shared release flow, changelog rules, hooks and commit check |
@@ -127,6 +140,10 @@ its own `[lints]` table instead of `workspace = true`.
 - rustfmt also formats the out-of-line modules a staged file declares, so the
   hook can change a file you did not stage. It stages only what was already
   staged.
+- commitlint-rs publishes no binaries for its recent releases, so the first
+  `just setup` builds it with cargo, which takes a little while. mise does
+  that before setup installs the pinned toolchain, so with
+  `RUSTUP_AUTO_INSTALL=0` run `rustup toolchain install` first.
 - CI does not cache `target/`. The template has no dependencies to cache; add
   caching when a project's build is slow enough to need it.
 

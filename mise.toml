@@ -5,3 +5,7 @@
 just = "1"
 lefthook = "2"
 git-cliff = "2"
+# Checks commit messages against .commitlintrc.yml; scripts/commit-msg.sh uses
+# it when it is on PATH. Its recent releases ship no binaries, so mise builds
+# it with cargo, using the toolchain rust-toolchain.toml pins.
+"cargo:commitlint-rs" = "0.2"

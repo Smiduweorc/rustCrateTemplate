@@ -40,8 +40,9 @@ lefthook() {
 # Flavor: rust
 
 # rust-toolchain.toml pins the toolchain. Installing it explicitly, rather than
-# relying on rustup to do it on the first cargo call, keeps setup working when
-# RUSTUP_AUTO_INSTALL=0.
+# relying on rustup to do it on the first cargo call, keeps this step working
+# when RUSTUP_AUTO_INSTALL=0. mise builds commitlint-rs with cargo before this
+# runs, though, so a fresh setup with that set needs the toolchain first.
 flavor_setup() {
 	say "Installing the pinned Rust toolchain"
 	rustup toolchain install
